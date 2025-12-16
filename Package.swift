@@ -18,6 +18,10 @@ let package = Package(
             targets: ["ARCLogger"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/arclabs-studio/ARCAgentsDocs.git", from: "1.0.0"),
+        .package(url: "https://github.com/arclabs-studio/ARCDevTools.git", from: "1.1.4"),
+    ],
     targets: [
         .target(
             name: "ARCLogger",
