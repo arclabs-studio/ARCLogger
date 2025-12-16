@@ -6,26 +6,28 @@ import PackageDescription
 let package = Package(
     name: "ARCLogger",
     platforms: [
-        .iOS(.v14),
-        .macOS(.v11),
-        .tvOS(.v14),
-        .watchOS(.v7)
+        .iOS(.v17),
+        .macOS(.v14),
+        .watchOS(.v10),
+        .tvOS(.v17),
+        .visionOS(.v1)
     ],
     products: [
         .library(
             name: "ARCLogger",
             targets: ["ARCLogger"]
-        ),
+        )
     ],
     targets: [
         .target(
             name: "ARCLogger",
-            path: "Sources"
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
+            ]
         ),
         .testTarget(
             name: "ARCLoggerTests",
-            dependencies: ["ARCLogger"],
-            path: "Tests"
+            dependencies: ["ARCLogger"]
         )
     ]
 )

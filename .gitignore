@@ -1,17 +1,10 @@
-# Swift / Xcode / SwiftPM
-build/
-DerivedData/
-.swiftpm/
-.build/
-xcuserdata/
 .DS_Store
-.idea/
-.vscode/
-*.xcworkspace
-*.xcuserstate
-*.log
-*.swp
-*.tmp
-*.old
-/Pods
-/Carthage
+/.build
+/Packages
+xcuserdata/
+DerivedData/
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+Package.resolved
+*.xcodeproj
