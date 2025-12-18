@@ -4,14 +4,32 @@ DerivedData/
 .swiftpm/
 .build/
 xcuserdata/
-.DS_Store
-.idea/
-.vscode/
 *.xcworkspace
 *.xcuserstate
-*.log
+*.xcodeproj/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE
+.idea/
+.vscode/
 *.swp
 *.tmp
 *.old
+
+# Logs
+*.log
+
+# Dependencies
 /Pods
 /Carthage
+
+# Documentation
+.docc-build/
+
+# Generated
+*.generated.swift
