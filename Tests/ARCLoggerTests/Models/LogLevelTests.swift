@@ -9,7 +9,6 @@ import Testing
 
 @Suite("LogLevel Tests")
 struct LogLevelTests {
-
     // MARK: - Raw Value Tests
 
     @Test("LogLevel raw values are ordered correctly")
@@ -75,7 +74,7 @@ struct LogLevelTests {
 
     @Test("LogLevel emojis are unique")
     func emojisAreUnique() {
-        let emojis = LogLevel.allCases.map { $0.emoji }
+        let emojis = LogLevel.allCases.map(\.emoji)
         let uniqueEmojis = Set(emojis)
         #expect(emojis.count == uniqueEmojis.count)
     }

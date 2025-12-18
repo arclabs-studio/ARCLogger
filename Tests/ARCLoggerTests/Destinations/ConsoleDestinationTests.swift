@@ -10,7 +10,6 @@ import Testing
 
 @Suite("ConsoleDestination Tests")
 struct ConsoleDestinationTests {
-
     // MARK: - Initialization Tests
 
     @Test("Default initialization sets expected values")

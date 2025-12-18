@@ -52,8 +52,8 @@ public struct ConsoleDestination: LogDestination {
         self.includeTimestamp = includeTimestamp
         self.includeSourceLocation = includeSourceLocation
         self.useEmoji = useEmoji
-        self.dateFormatter = DateFormatter()
-        self.dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
     }
 
     // MARK: - LogDestination
@@ -86,9 +86,9 @@ public struct ConsoleDestination: LogDestination {
         components.append(entry.message)
 
         if !entry.metadata.isEmpty {
-            let metadataString = entry.metadata.map { key, value in
-                "\(key)=\(value.redacted(isProduction: isProduction))"
-            }.joined(separator: ", ")
+            let metadataString = entry.metadata
+                .map { key, value in "\(key)=\(value.redacted(isProduction: isProduction))" }
+                .joined(separator: ", ")
             components.append("{\(metadataString)}")
         }
 

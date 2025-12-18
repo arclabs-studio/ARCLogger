@@ -10,7 +10,6 @@ import Testing
 
 @Suite("LogEntry Tests")
 struct LogEntryTests {
-
     // MARK: - Initialization Tests
 
     @Test("LogEntry initializes with all parameters")
@@ -54,7 +53,7 @@ struct LogEntryTests {
     @Test("Message can be empty")
     func emptyMessageAllowed() {
         let entry = LogEntry(message: "", level: .info)
-        #expect(entry.message == "")
+        #expect(entry.message.isEmpty)
     }
 
     @Test("Message preserves whitespace")
@@ -114,7 +113,7 @@ struct LogEntryTests {
 
     @Test("Custom timestamp is preserved")
     func customTimestampPreserved() {
-        let customDate = Date(timeIntervalSince1970: 1000000)
+        let customDate = Date(timeIntervalSince1970: 1_000_000)
         let entry = LogEntry(message: "Test", level: .info, timestamp: customDate)
         #expect(entry.timestamp == customDate)
     }

@@ -2,7 +2,6 @@ import Foundation
 @testable import ARCLogger
 
 enum LogTestHelpers {
-
     /// Creates a test logger with a mock destination.
     static func makeTestLogger(
         category: String = "Test",

@@ -9,7 +9,6 @@ import Testing
 
 @Suite("LogPrivacy Tests")
 struct LogPrivacyTests {
-
     // MARK: - Privacy Level Tests
 
     @Test("Privacy levels are distinct")
@@ -29,7 +28,6 @@ struct LogPrivacyTests {
 
 @Suite("LogValue Tests")
 struct LogValueTests {
-
     // MARK: - Initialization Tests
 
     @Test("LogValue initializes with value and privacy")
@@ -113,8 +111,8 @@ struct LogValueTests {
     @Test("Empty string values are handled correctly")
     func emptyStringHandled() {
         let logValue = LogValue.public("")
-        #expect(logValue.value == "")
-        #expect(logValue.redacted(isProduction: false) == "")
+        #expect(logValue.value.isEmpty)
+        #expect(logValue.redacted(isProduction: false).isEmpty)
     }
 
     @Test("Unicode values are handled correctly")

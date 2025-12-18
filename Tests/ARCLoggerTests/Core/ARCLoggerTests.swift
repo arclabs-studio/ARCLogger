@@ -35,7 +35,6 @@ final class MockDestination: LogDestination, @unchecked Sendable {
 
 @Suite("ARCLogger Tests")
 struct ARCLoggerTests {
-
     // MARK: - Initialization Tests
 
     @Test("Default initialization creates logger with console destination")
@@ -210,7 +209,7 @@ struct ARCLoggerTests {
 
         logger.info("")
 
-        #expect(destination.entries.first?.message == "")
+        #expect(destination.entries.first?.message.isEmpty == true)
     }
 
     @Test("Unicode message is logged correctly")

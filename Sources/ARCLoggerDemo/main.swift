@@ -4,8 +4,8 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
 import ARCLogger
+import Foundation
 
 // MARK: - Demo Runner
 
@@ -53,9 +53,9 @@ let devLogger = ARCLogger(isProduction: false)
 print("In development, all data is visible:\n")
 
 devLogger.info("Processing user data", metadata: [
-    "userId": .public("USR-12345"),           // Always visible
-    "email": .private("john@example.com"),    // Visible in dev, hidden in prod
-    "apiKey": .sensitive("sk_live_abc123")    // Always hidden
+    "userId": .public("USR-12345"), // Always visible
+    "email": .private("john@example.com"), // Visible in dev, hidden in prod
+    "apiKey": .sensitive("sk_live_abc123") // Always hidden
 ])
 
 // MARK: - 4. Privacy Levels (Production Mode)
@@ -67,9 +67,9 @@ let prodLogger = ARCLogger(isProduction: true)
 print("In production, sensitive data is redacted:\n")
 
 prodLogger.info("Processing user data", metadata: [
-    "userId": .public("USR-12345"),           // Always visible
-    "email": .private("john@example.com"),    // [REDACTED]
-    "apiKey": .sensitive("sk_live_abc123")    // [REDACTED]
+    "userId": .public("USR-12345"), // Always visible
+    "email": .private("john@example.com"), // [REDACTED]
+    "apiKey": .sensitive("sk_live_abc123") // [REDACTED]
 ])
 
 // MARK: - 5. Custom Destination Configuration

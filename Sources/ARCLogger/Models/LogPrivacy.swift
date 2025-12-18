@@ -105,11 +105,11 @@ public struct LogValue: Sendable, CustomStringConvertible {
     public func redacted(isProduction: Bool) -> String {
         switch privacy {
         case .public:
-            return value
+            value
         case .private:
-            return isProduction ? "<private>" : value
+            isProduction ? "<private>" : value
         case .sensitive:
-            return "<sensitive>"
+            "<sensitive>"
         }
     }
 }

@@ -18,7 +18,7 @@ final class MockLogDestination: LogDestination, @unchecked Sendable {
         self.minimumLevel = minimumLevel
     }
 
-    func write(_ entry: LogEntry, isProduction: Bool) {
+    func write(_ entry: LogEntry, isProduction _: Bool) {
         guard entry.level >= minimumLevel else { return }
         loggedEntries.append(entry)
         callCount += 1
@@ -32,6 +32,6 @@ final class MockLogDestination: LogDestination, @unchecked Sendable {
     func messages(for level: LogLevel) -> [String] {
         loggedEntries
             .filter { $0.level == level }
-            .map { $0.message }
+            .map(\.message)
     }
 }

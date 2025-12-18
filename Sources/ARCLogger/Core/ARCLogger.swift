@@ -77,7 +77,7 @@ public struct ARCLogger: Logger, Sendable {
         self.subsystem = subsystem
         self.category = category
         self.isProduction = isProduction
-        self.destinations = [ConsoleDestination()]
+        destinations = [ConsoleDestination()]
     }
 
     /// Creates a new ARCLogger with custom destinations.
