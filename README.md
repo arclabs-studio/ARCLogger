@@ -171,22 +171,27 @@ let logger = ARCLogger(
 ```
 ARCLogger/
 ├── Sources/
-│   └── ARCLogger/
-│       ├── ARCLogger.swift          # Main logger implementation
-│       ├── LogLevel.swift           # Log severity levels
-│       ├── LogPrivacy.swift         # Privacy levels and redaction
-│       ├── LogEntry.swift           # Structured log entry
-│       ├── LogDestination.swift     # Destination protocol
-│       ├── ConsoleDestination.swift # Console output
-│       └── Logger.swift             # Logger protocol
+│   ├── ARCLogger/
+│   │   ├── Core/
+│   │   │   └── ARCLogger.swift        # Main logger implementation
+│   │   ├── Models/
+│   │   │   ├── LogEntry.swift         # Structured log entry
+│   │   │   ├── LogLevel.swift         # Log severity levels
+│   │   │   └── LogPrivacy.swift       # Privacy levels and redaction
+│   │   ├── Protocols/
+│   │   │   ├── Logger.swift           # Logger protocol
+│   │   │   └── LogDestination.swift   # Destination protocol
+│   │   └── Destinations/
+│   │       └── ConsoleDestination.swift
+│   └── ARCLoggerDemo/
+│       └── main.swift                 # Interactive demo
 ├── Tests/
 │   └── ARCLoggerTests/
-│       ├── ARCLoggerTests.swift
-│       ├── LogLevelTests.swift
-│       ├── LogPrivacyTests.swift
-│       ├── LogEntryTests.swift
-│       └── ConsoleDestinationTests.swift
-└── Documentation/
+│       ├── Core/
+│       ├── Models/
+│       ├── Destinations/
+│       └── Helpers/
+└── ARCDevTools/                       # Submodule
 ```
 
 ---
@@ -238,6 +243,28 @@ git submodule update --init --recursive
 
 # Build the project
 swift build
+```
+
+### Run the Demo
+
+ARCLogger includes an interactive demo that showcases all features:
+
+```bash
+swift run ARCLoggerDemo
+```
+
+The demo covers:
+- Basic logging at all levels
+- Privacy redaction (development vs production)
+- Custom destination configuration
+- Log level filtering
+- Multiple destinations
+- Practical authentication flow example
+
+**Sample output:**
+
+```
+[2025-12-18 10:30:00.123] ℹ️ [INFO] User authenticated {userId=USR-12345, email=<private>, token=<sensitive>}
 ```
 
 ### Available Commands

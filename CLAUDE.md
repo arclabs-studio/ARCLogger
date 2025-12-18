@@ -82,15 +82,33 @@ struct MyDestination: LogDestination {
 
 ## File Organization
 
-| File | Purpose |
-|------|---------|
-| `ARCLogger.swift` | Main logger struct |
-| `Logger.swift` | Logger protocol + convenience methods |
-| `LogLevel.swift` | Severity levels enum |
-| `LogPrivacy.swift` | Privacy levels + LogValue |
-| `LogEntry.swift` | Structured log entry |
-| `LogDestination.swift` | Destination protocol |
-| `ConsoleDestination.swift` | Console output |
+```
+Sources/ARCLogger/
+├── Core/
+│   └── ARCLogger.swift          # Main logger implementation
+├── Models/
+│   ├── LogEntry.swift           # Structured log entry
+│   ├── LogLevel.swift           # Severity levels enum
+│   └── LogPrivacy.swift         # Privacy levels + LogValue
+├── Protocols/
+│   ├── Logger.swift             # Logger protocol + convenience methods
+│   └── LogDestination.swift     # Destination protocol
+└── Destinations/
+    └── ConsoleDestination.swift # Console output implementation
+
+Tests/ARCLoggerTests/
+├── Core/
+│   └── ARCLoggerTests.swift
+├── Models/
+│   ├── LogEntryTests.swift
+│   ├── LogLevelTests.swift
+│   └── LogPrivacyTests.swift
+├── Destinations/
+│   └── ConsoleDestinationTests.swift
+└── Helpers/
+    ├── MockLogDestination.swift
+    └── LogTestHelpers.swift
+```
 
 ## Design Decisions
 

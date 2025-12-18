@@ -15,6 +15,10 @@ let package = Package(
         .library(
             name: "ARCLogger",
             targets: ["ARCLogger"]
+        ),
+        .executable(
+            name: "ARCLoggerDemo",
+            targets: ["ARCLoggerDemo"]
         )
     ],
     targets: [
@@ -23,6 +27,10 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency")
             ]
+        ),
+        .executableTarget(
+            name: "ARCLoggerDemo",
+            dependencies: ["ARCLogger"]
         ),
         .testTarget(
             name: "ARCLoggerTests",
