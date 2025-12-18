@@ -23,10 +23,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "ARCLogger",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            name: "ARCLogger"
         ),
         .executableTarget(
             name: "ARCLoggerDemo",
