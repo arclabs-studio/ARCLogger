@@ -5,7 +5,6 @@
 // Licensed under MIT License
 
 import Foundation
-import os.log
 
 /// A log destination that writes to the system console.
 ///
