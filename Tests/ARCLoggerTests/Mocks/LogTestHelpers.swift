@@ -11,9 +11,9 @@ enum LogTestHelpers {
     ) -> (logger: ARCLogger, mock: MockLogDestination) {
         let mock = MockLogDestination(minimumLevel: minimumLevel)
         let logger = ARCLogger(
-            category: category,
+            destinations: [mock],
             subsystem: subsystem,
-            destinations: [mock]
+            category: category
         )
         return (logger, mock)
     }

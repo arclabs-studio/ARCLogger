@@ -20,15 +20,13 @@ let package = Package(
     targets: [
         .target(
             name: "ARCLogger",
-            path: "Sources",
             swiftSettings: [
                 .enableUpcomingFeature("StrictConcurrency")
             ]
         ),
         .testTarget(
             name: "ARCLoggerTests",
-            dependencies: ["ARCLogger"],
-            path: "Tests"
+            dependencies: ["ARCLogger"]
         )
     ]
 )
