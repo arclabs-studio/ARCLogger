@@ -1,134 +1,140 @@
+// ARCLogger.swift
+// ARCLogger
+//
+// Copyright (c) 2025 ARC Labs Studio
+// Licensed under MIT License
+
 import Foundation
 
-/// Main logging facade for ARC Labs Studio packages.
+/// The main logger implementation for ARCLogger.
 ///
-/// Provides a unified interface for logging across all packages
-/// with support for multiple destinations and structured context.
+/// ARCLogger provides structured, privacy-conscious logging with support
+/// for multiple destinations and customizable output formats.
 ///
-/// ## Usage
+/// ## Overview
+///
+/// ARCLogger is designed to be simple to use while providing powerful
+/// features for production applications:
+///
+/// - **Privacy-conscious**: Automatically redacts sensitive data in production
+/// - **Structured logging**: Add metadata to logs for better searchability
+/// - **Multiple destinations**: Send logs to console, files, or custom destinations
+/// - **Thread-safe**: Safe to use from any thread or actor
+///
+/// ## Quick Start
 ///
 /// ```swift
-/// let logger = ARCLogger(
-///     category: "Network",
-///     subsystem: "com.arclabs-studio.arcnetworking"
-/// )
+/// import ARCLogger
 ///
-/// logger.debug("Starting request", metadata: ["url": "https://api.example.com"])
-/// logger.error("Request failed", error: someError)
+/// // Create a logger
+/// let logger = ARCLogger()
+///
+/// // Log messages at different levels
+/// logger.debug("Starting operation")
+/// logger.info("User logged in", metadata: ["userId": .public("123")])
+/// logger.warning("Cache miss")
+/// logger.error("Failed to save", metadata: ["error": .public("timeout")])
+/// logger.critical("Database connection lost")
 /// ```
-public struct ARCLogger: Sendable {
-    private let context: LogContext
-    private let destinations: [LogDestination]
+///
+/// ## Privacy-Conscious Logging
+///
+/// ```swift
+/// logger.info("User authenticated", metadata: [
+///     "userId": .public("12345"),          // Always visible
+///     "email": .private("user@test.com"),  // Hidden in production
+///     "token": .sensitive("abc123")         // Always hidden
+/// ])
+/// ```
+public struct ARCLogger: Logger, Sendable {
+    // MARK: - Properties
 
+    /// The destinations where logs will be sent.
+    public let destinations: [any LogDestination]
+
+    /// Whether the environment is production.
+    public let isProduction: Bool
+
+    /// The subsystem identifier for this logger.
+    public let subsystem: String
+
+    /// The category for this logger.
+    public let category: String
+
+    // MARK: - Initialization
+
+    /// Creates a new ARCLogger with default console destination.
+    ///
+    /// - Parameters:
+    ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
+    ///   - category: The log category. Defaults to "Default".
+    ///   - isProduction: Whether to treat as production. Defaults to `false`.
     public init(
-        category: String,
-        subsystem: String,
-        destinations: [LogDestination]? = nil
+        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+        category: String = "Default",
+        isProduction: Bool = false
     ) {
-        self.context = LogContext(category: category, subsystem: subsystem)
-
-        // Default destinations if none provided
-        if let destinations = destinations {
-            self.destinations = destinations
-        } else {
-            #if DEBUG
-            self.destinations = [
-                ConsoleDestination(),
-                OSLogDestination(subsystem: subsystem, category: category)
-            ]
-            #else
-            self.destinations = [
-                OSLogDestination(subsystem: subsystem, category: category, minimumLevel: .warning)
-            ]
-            #endif
-        }
+        self.subsystem = subsystem
+        self.category = category
+        self.isProduction = isProduction
+        destinations = [ConsoleDestination()]
     }
 
-    // MARK: - Public Methods
+    /// Creates a new ARCLogger with custom destinations.
+    ///
+    /// - Parameters:
+    ///   - destinations: The log destinations to use.
+    ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
+    ///   - category: The log category. Defaults to "Default".
+    ///   - isProduction: Whether to treat as production. Defaults to `false`.
+    public init(
+        destinations: [any LogDestination],
+        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+        category: String = "Default",
+        isProduction: Bool = false
+    ) {
+        self.destinations = destinations
+        self.subsystem = subsystem
+        self.category = category
+        self.isProduction = isProduction
+    }
 
-    public func debug(
+    // MARK: - Logger
+
+    public func log(
         _ message: String,
-        metadata: [String: String] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
-        log(level: .debug, message: message, metadata: metadata, file: file, function: function, line: line)
-    }
-
-    public func info(
-        _ message: String,
-        metadata: [String: String] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
-        log(level: .info, message: message, metadata: metadata, file: file, function: function, line: line)
-    }
-
-    public func warning(
-        _ message: String,
-        metadata: [String: String] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
-        log(level: .warning, message: message, metadata: metadata, file: file, function: function, line: line)
-    }
-
-    public func error(
-        _ message: String,
-        error: Error? = nil,
-        metadata: [String: String] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
-        var enrichedMetadata = metadata
-        if let error = error {
-            enrichedMetadata["error"] = error.localizedDescription
-        }
-
-        log(level: .error, message: message, metadata: enrichedMetadata, file: file, function: function, line: line)
-    }
-
-    public func critical(
-        _ message: String,
-        error: Error? = nil,
-        metadata: [String: String] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
-        var enrichedMetadata = metadata
-        if let error = error {
-            enrichedMetadata["error"] = error.localizedDescription
-        }
-
-        log(level: .critical, message: message, metadata: enrichedMetadata, file: file, function: function, line: line)
-    }
-
-    // MARK: - Private Methods
-
-    private func log(
         level: LogLevel,
-        message: String,
-        metadata: [String: String],
+        metadata: [String: LogValue],
         file: String,
         function: String,
         line: Int
     ) {
-        let enrichedContext = LogContext(
-            category: context.category,
-            subsystem: context.subsystem,
+        let entry = LogEntry(
+            message: message,
+            level: level,
+            metadata: metadata,
             file: file,
             function: function,
-            line: line,
-            metadata: metadata
+            line: line
         )
 
         for destination in destinations {
-            destination.write(level: level, message: message, context: enrichedContext)
+            destination.write(entry, isProduction: isProduction)
         }
     }
+}
+
+// MARK: - Shared Instance
+
+extension ARCLogger {
+    /// A shared logger instance for convenience.
+    ///
+    /// This provides a global access point for simple logging needs.
+    /// For more complex scenarios, create your own ARCLogger instance
+    /// with custom configuration.
+    ///
+    /// ```swift
+    /// ARCLogger.shared.info("Application started")
+    /// ```
+    public static let shared = ARCLogger()
 }

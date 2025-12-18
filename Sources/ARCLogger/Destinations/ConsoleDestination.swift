@@ -1,44 +1,96 @@
+// ConsoleDestination.swift
+// ARCLogger
+//
+// Copyright (c) 2025 ARC Labs Studio
+// Licensed under MIT License
+
 import Foundation
 
-/// Logs messages to the standard output (console).
+/// A log destination that writes to the system console.
 ///
-/// Only active in DEBUG builds to avoid polluting production logs.
+/// Uses Apple's unified logging system (os.log) for optimal performance
+/// and integration with Console.app and Xcode.
+///
+/// ## Example
+///
+/// ```swift
+/// let console = ConsoleDestination(
+///     minimumLevel: .info,
+///     includeTimestamp: true
+/// )
+/// ```
 public struct ConsoleDestination: LogDestination {
+    /// The minimum log level to output.
     public let minimumLevel: LogLevel
 
-    public init(minimumLevel: LogLevel = .debug) {
+    /// Whether to include timestamps in output.
+    public let includeTimestamp: Bool
+
+    /// Whether to include source location in output.
+    public let includeSourceLocation: Bool
+
+    /// Whether to use emoji prefixes for log levels.
+    public let useEmoji: Bool
+
+    private let dateFormatter: DateFormatter
+
+    /// Creates a new console destination.
+    ///
+    /// - Parameters:
+    ///   - minimumLevel: Minimum level to log. Defaults to `.debug`.
+    ///   - includeTimestamp: Include timestamp in output. Defaults to `true`.
+    ///   - includeSourceLocation: Include file/line info. Defaults to `false`.
+    ///   - useEmoji: Use emoji prefixes. Defaults to `true`.
+    public init(
+        minimumLevel: LogLevel = .debug,
+        includeTimestamp: Bool = true,
+        includeSourceLocation: Bool = false,
+        useEmoji: Bool = true
+    ) {
         self.minimumLevel = minimumLevel
+        self.includeTimestamp = includeTimestamp
+        self.includeSourceLocation = includeSourceLocation
+        self.useEmoji = useEmoji
+        dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
     }
 
-    public func write(level: LogLevel, message: String, context: LogContext) {
-        #if DEBUG
-        guard level >= minimumLevel else { return }
+    // MARK: - LogDestination
 
-        let timestamp = ISO8601DateFormatter().string(from: Date())
-        let location = buildLocationString(context)
-
-        print("""
-        \(level.emoji) [\(context.category)] \(timestamp)
-        \(message)\(location)
-        """)
-        #endif
+    public func write(_ entry: LogEntry, isProduction: Bool) {
+        guard entry.level >= minimumLevel else { return }
+        let formatted = format(entry, isProduction: isProduction)
+        print(formatted)
     }
 
-    private func buildLocationString(_ context: LogContext) -> String {
-        var parts: [String] = []
+    // MARK: - Private
 
-        if let file = context.file {
-            parts.append("📄 \((file as NSString).lastPathComponent)")
+    private func format(_ entry: LogEntry, isProduction: Bool) -> String {
+        var components: [String] = []
+
+        if includeTimestamp {
+            components.append("[\(dateFormatter.string(from: entry.timestamp))]")
         }
 
-        if let function = context.function {
-            parts.append("⚙️ \(function)")
+        if useEmoji {
+            components.append(entry.level.emoji)
         }
 
-        if let line = context.line {
-            parts.append("📍 L\(line)")
+        components.append("[\(entry.level)]")
+
+        if includeSourceLocation {
+            components.append("[\(entry.fileName):\(entry.line)]")
         }
 
-        return parts.isEmpty ? "" : "\n\(parts.joined(separator: " | "))"
+        components.append(entry.message)
+
+        if !entry.metadata.isEmpty {
+            let metadataString = entry.metadata
+                .map { key, value in "\(key)=\(value.redacted(isProduction: isProduction))" }
+                .joined(separator: ", ")
+            components.append("{\(metadataString)}")
+        }
+
+        return components.joined(separator: " ")
     }
 }

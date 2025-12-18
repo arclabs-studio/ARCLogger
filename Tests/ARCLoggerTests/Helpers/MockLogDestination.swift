@@ -6,32 +6,32 @@ final class MockLogDestination: LogDestination, @unchecked Sendable {
     var minimumLevel: LogLevel
 
     // Captured data
-    private(set) var loggedMessages: [(level: LogLevel, message: String, context: LogContext)] = []
+    private(set) var loggedEntries: [LogEntry] = []
     private(set) var callCount = 0
 
     // Computed helpers
-    var lastLevel: LogLevel? { loggedMessages.last?.level }
-    var lastMessage: String? { loggedMessages.last?.message }
-    var lastContext: LogContext? { loggedMessages.last?.context }
+    var lastEntry: LogEntry? { loggedEntries.last }
+    var lastLevel: LogLevel? { loggedEntries.last?.level }
+    var lastMessage: String? { loggedEntries.last?.message }
 
     init(minimumLevel: LogLevel = .debug) {
         self.minimumLevel = minimumLevel
     }
 
-    func write(level: LogLevel, message: String, context: LogContext) {
-        guard level >= minimumLevel else { return }
-        loggedMessages.append((level, message, context))
+    func write(_ entry: LogEntry, isProduction _: Bool) {
+        guard entry.level >= minimumLevel else { return }
+        loggedEntries.append(entry)
         callCount += 1
     }
 
     func reset() {
-        loggedMessages.removeAll()
+        loggedEntries.removeAll()
         callCount = 0
     }
 
     func messages(for level: LogLevel) -> [String] {
-        loggedMessages
+        loggedEntries
             .filter { $0.level == level }
-            .map { $0.message }
+            .map(\.message)
     }
 }

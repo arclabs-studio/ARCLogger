@@ -8,26 +8,26 @@ let package = Package(
     platforms: [
         .iOS(.v17),
         .macOS(.v14),
-        .watchOS(.v10),
         .tvOS(.v17),
-        .visionOS(.v1)
+        .watchOS(.v10)
     ],
     products: [
         .library(
             name: "ARCLogger",
             targets: ["ARCLogger"]
+        ),
+        .executable(
+            name: "ARCLoggerDemo",
+            targets: ["ARCLoggerDemo"]
         )
-    ],
-    dependencies: [
-        .package(url: "https://github.com/arclabs-studio/ARCAgentsDocs.git", from: "1.0.0"),
-        .package(url: "https://github.com/arclabs-studio/ARCDevTools.git", from: "1.1.4"),
     ],
     targets: [
         .target(
-            name: "ARCLogger",
-            swiftSettings: [
-                .enableUpcomingFeature("StrictConcurrency")
-            ]
+            name: "ARCLogger"
+        ),
+        .executableTarget(
+            name: "ARCLoggerDemo",
+            dependencies: ["ARCLogger"]
         ),
         .testTarget(
             name: "ARCLoggerTests",

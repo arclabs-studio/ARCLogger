@@ -1,24 +1,88 @@
-import XCTest
+// ConsoleDestinationTests.swift
+// ARCLoggerTests
+//
+// Copyright (c) 2025 ARC Labs Studio
+// Licensed under MIT License
+
+import Foundation
+import Testing
 @testable import ARCLogger
 
-final class ConsoleDestinationTests: XCTestCase {
+@Suite("ConsoleDestination Tests")
+struct ConsoleDestinationTests {
+    // MARK: - Initialization Tests
 
-    func testDefaultMinimumLevel() {
+    @Test("Default initialization sets expected values")
+    func defaultInitialization() {
         let destination = ConsoleDestination()
-        XCTAssertEqual(destination.minimumLevel, .debug)
+
+        #expect(destination.minimumLevel == .debug)
+        #expect(destination.includeTimestamp == true)
+        #expect(destination.includeSourceLocation == false)
+        #expect(destination.useEmoji == true)
     }
 
-    func testCustomMinimumLevel() {
-        let destination = ConsoleDestination(minimumLevel: .error)
-        XCTAssertEqual(destination.minimumLevel, .error)
+    @Test("Custom initialization preserves values")
+    func customInitialization() {
+        let destination = ConsoleDestination(
+            minimumLevel: .warning,
+            includeTimestamp: false,
+            includeSourceLocation: true,
+            useEmoji: false
+        )
+
+        #expect(destination.minimumLevel == .warning)
+        #expect(destination.includeTimestamp == false)
+        #expect(destination.includeSourceLocation == true)
+        #expect(destination.useEmoji == false)
     }
 
-    func testWriteDoesNotCrash() {
-        let destination = ConsoleDestination()
-        let context = LogContext(category: "Test", subsystem: "com.test")
+    // MARK: - Minimum Level Tests
 
-        destination.write(level: .info, message: "Test", context: context)
+    @Test("All log levels can be set as minimum", arguments: LogLevel.allCases)
+    func allLevelsAsMinimum(level: LogLevel) {
+        let destination = ConsoleDestination(minimumLevel: level)
+        #expect(destination.minimumLevel == level)
+    }
 
-        XCTAssertTrue(true)
+    // MARK: - Configuration Combinations
+
+    @Test("Timestamp only configuration")
+    func timestampOnlyConfig() {
+        let destination = ConsoleDestination(
+            includeTimestamp: true,
+            includeSourceLocation: false,
+            useEmoji: false
+        )
+
+        #expect(destination.includeTimestamp == true)
+        #expect(destination.includeSourceLocation == false)
+        #expect(destination.useEmoji == false)
+    }
+
+    @Test("Source location only configuration")
+    func sourceLocationOnlyConfig() {
+        let destination = ConsoleDestination(
+            includeTimestamp: false,
+            includeSourceLocation: true,
+            useEmoji: false
+        )
+
+        #expect(destination.includeTimestamp == false)
+        #expect(destination.includeSourceLocation == true)
+        #expect(destination.useEmoji == false)
+    }
+
+    @Test("Minimal configuration")
+    func minimalConfig() {
+        let destination = ConsoleDestination(
+            includeTimestamp: false,
+            includeSourceLocation: false,
+            useEmoji: false
+        )
+
+        #expect(destination.includeTimestamp == false)
+        #expect(destination.includeSourceLocation == false)
+        #expect(destination.useEmoji == false)
     }
 }
