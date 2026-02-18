@@ -33,3 +33,17 @@ xcuserdata/
 
 # Generated
 *.generated.swift
+# ARC Labs Security - Archivos sensibles
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.cer
+*secret*
+*password*
+*credentials*
+*.mobileprovision
+# Archivos de configuración local
+.claude-code/
+*.local
