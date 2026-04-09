@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
-
 /// A protocol defining a destination for log output.
 ///
 /// Implement this protocol to create custom log destinations such as
@@ -45,5 +43,7 @@ public protocol LogDestination: Sendable {
 
 extension LogDestination {
     /// Default minimum level is debug (accepts all logs).
-    public var minimumLevel: LogLevel { .debug }
+    public var minimumLevel: LogLevel {
+        .debug
+    }
 }

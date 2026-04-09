@@ -4,7 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
 import os
 
 /// Represents the severity level of a log message.
