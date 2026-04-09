@@ -85,27 +85,27 @@ public struct ConsoleDestination: LogDestination {
         let category = entry.category.isEmpty ? "Default" : entry.category
         let osLogger = os.Logger(subsystem: subsystem, category: category)
 
-        // Partition metadata by privacy so each bucket can use the correct
-        // compile-time interpolation annotation. OSLogMessage templates are
-        // compile-time constants — this bounded three-segment template is the
-        // only way to emit dynamic metadata with native OSLog privacy semantics.
-        let publicMeta = entry.metadata
-            .filter { $0.value.privacy == .public }
-            .map { "\($0.key)=\($0.value.value)" }
-            .sorted()
-            .joined(separator: ", ")
+        // Single pass: partition metadata by privacy level so each bucket can
+        // use the correct compile-time OSLog interpolation annotation.
+        // OSLogMessage templates are compile-time constants — this bounded
+        // three-segment template is the only way to emit dynamic metadata with
+        // native OSLog privacy semantics.
+        var publicParts: [String] = []
+        var privateParts: [String] = []
+        var sensitiveParts: [String] = []
 
-        let privateMeta = entry.metadata
-            .filter { $0.value.privacy == .private }
-            .map { "\($0.key)=\($0.value.value)" }
-            .sorted()
-            .joined(separator: ", ")
+        for (key, value) in entry.metadata {
+            let pair = "\(key)=\(value.value)"
+            switch value.privacy {
+            case .public: publicParts.append(pair)
+            case .private: privateParts.append(pair)
+            case .sensitive: sensitiveParts.append(pair)
+            }
+        }
 
-        let sensitiveMeta = entry.metadata
-            .filter { $0.value.privacy == .sensitive }
-            .map { "\($0.key)=\($0.value.value)" }
-            .sorted()
-            .joined(separator: ", ")
+        let publicMeta = publicParts.sorted().joined(separator: ", ")
+        let privateMeta = privateParts.sorted().joined(separator: ", ")
+        let sensitiveMeta = sensitiveParts.sorted().joined(separator: ", ")
 
         // The main message is developer-provided and must be explicitly marked
         // .public; otherwise the OS redacts all strings by default in production.
