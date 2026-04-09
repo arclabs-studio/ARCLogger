@@ -69,11 +69,9 @@ public struct ARCLogger: Logger, Sendable {
     ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
     ///   - category: The log category. Defaults to "Default".
     ///   - isProduction: Whether to treat as production. Defaults to `false`.
-    public init(
-        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
-        category: String = "Default",
-        isProduction: Bool = false
-    ) {
+    public init(subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                category: String = "Default",
+                isProduction: Bool = false) {
         self.subsystem = subsystem
         self.category = category
         self.isProduction = isProduction
@@ -87,12 +85,10 @@ public struct ARCLogger: Logger, Sendable {
     ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
     ///   - category: The log category. Defaults to "Default".
     ///   - isProduction: Whether to treat as production. Defaults to `false`.
-    public init(
-        destinations: [any LogDestination],
-        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
-        category: String = "Default",
-        isProduction: Bool = false
-    ) {
+    public init(destinations: [any LogDestination],
+                subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                category: String = "Default",
+                isProduction: Bool = false) {
         self.destinations = destinations
         self.subsystem = subsystem
         self.category = category
@@ -101,22 +97,21 @@ public struct ARCLogger: Logger, Sendable {
 
     // MARK: - Logger
 
-    public func log(
-        _ message: String,
-        level: LogLevel,
-        metadata: [String: LogValue],
-        file: String,
-        function: String,
-        line: Int
-    ) {
-        let entry = LogEntry(
-            message: message,
-            level: level,
-            metadata: metadata,
-            file: file,
-            function: function,
-            line: line
-        )
+    // swiftlint:disable:next function_parameter_count
+    public func log(_ message: String,
+                    level: LogLevel,
+                    metadata: [String: LogValue],
+                    file: String,
+                    function: String,
+                    line: Int) {
+        let entry = LogEntry(message: message,
+                             level: level,
+                             metadata: metadata,
+                             subsystem: subsystem,
+                             category: category,
+                             file: file,
+                             function: function,
+                             line: line)
 
         for destination in destinations {
             destination.write(entry, isProduction: isProduction)
