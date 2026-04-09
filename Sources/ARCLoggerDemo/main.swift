@@ -20,7 +20,9 @@ print("""
 
 printSection("1. Basic Usage")
 
-let logger = ARCLogger()
+// mirrorsToStdout: true keeps terminal output for this demo.
+// In a real app, omit it — os.Logger routes to Console.app and log stream.
+let logger = ARCLogger(destinations: [ConsoleDestination(mirrorsToStdout: true)])
 
 logger.debug("Application starting...")
 logger.info("User interface loaded")
@@ -32,56 +34,50 @@ logger.critical("Database connection lost")
 
 printSection("2. Logging with Metadata")
 
-logger.info("User logged in", metadata: [
-    "userId": .public("USR-12345"),
-    "sessionId": .public("abc-def-ghi")
-])
+logger.info("User logged in", metadata: ["userId": .public("USR-12345"),
+                                         "sessionId": .public("abc-def-ghi")])
 
-logger.info("API request completed", metadata: [
-    "endpoint": .public("/api/users"),
-    "method": .public("GET"),
-    "statusCode": .public("200"),
-    "duration": .public("142ms")
-])
+logger.info("API request completed", metadata: ["endpoint": .public("/api/users"),
+                                                "method": .public("GET"),
+                                                "statusCode": .public("200"),
+                                                "duration": .public("142ms")])
 
 // MARK: - 3. Privacy Levels (Development Mode)
 
 printSection("3. Privacy Levels - Development Mode")
 
-let devLogger = ARCLogger(isProduction: false)
+let devLogger = ARCLogger(destinations: [ConsoleDestination(mirrorsToStdout: true)], isProduction: false)
 
 print("In development, all data is visible:\n")
 
-devLogger.info("Processing user data", metadata: [
-    "userId": .public("USR-12345"), // Always visible
-    "email": .private("john@example.com"), // Visible in dev, hidden in prod
-    "apiKey": .sensitive("sk_live_abc123") // Always hidden
-])
+devLogger.info("Processing user data", metadata: ["userId": .public("USR-12345"), // Always visible
+                                                  "email": .private("john@example.com"), // Visible in dev, hidden in
+                                                  // prod
+                                                  "apiKey": .sensitive("sk_live_abc123") // Always hidden
+    ])
 
 // MARK: - 4. Privacy Levels (Production Mode)
 
 printSection("4. Privacy Levels - Production Mode")
 
-let prodLogger = ARCLogger(isProduction: true)
+let prodLogger = ARCLogger(destinations: [ConsoleDestination(mirrorsToStdout: true)], isProduction: true)
 
 print("In production, sensitive data is redacted:\n")
 
-prodLogger.info("Processing user data", metadata: [
-    "userId": .public("USR-12345"), // Always visible
-    "email": .private("john@example.com"), // [REDACTED]
-    "apiKey": .sensitive("sk_live_abc123") // [REDACTED]
-])
+prodLogger.info("Processing user data", metadata: ["userId": .public("USR-12345"), // Always visible
+                                                   "email": .private("john@example.com"), // [REDACTED]
+                                                   "apiKey": .sensitive("sk_live_abc123") // [REDACTED]
+    ])
 
 // MARK: - 5. Custom Destination Configuration
 
 printSection("5. Custom Console Configuration")
 
-let verboseConsole = ConsoleDestination(
-    minimumLevel: .debug,
-    includeTimestamp: true,
-    includeSourceLocation: true,
-    useEmoji: true
-)
+let verboseConsole = ConsoleDestination(minimumLevel: .debug,
+                                        mirrorsToStdout: true,
+                                        includeTimestamp: true,
+                                        includeSourceLocation: true,
+                                        useEmoji: true)
 
 let verboseLogger = ARCLogger(destinations: [verboseConsole])
 
@@ -92,7 +88,7 @@ verboseLogger.info("This log includes file and line info")
 
 printSection("6. Filtering by Log Level")
 
-let warningOnlyConsole = ConsoleDestination(minimumLevel: .warning)
+let warningOnlyConsole = ConsoleDestination(minimumLevel: .warning, mirrorsToStdout: true)
 let filteredLogger = ARCLogger(destinations: [warningOnlyConsole])
 
 print("Only .warning and above will appear:\n")
@@ -105,8 +101,8 @@ filteredLogger.error("This WILL appear")
 
 printSection("7. Multiple Destinations")
 
-let consoleDebug = ConsoleDestination(minimumLevel: .debug, useEmoji: true)
-let consoleErrors = ConsoleDestination(minimumLevel: .error, useEmoji: false)
+let consoleDebug = ConsoleDestination(minimumLevel: .debug, mirrorsToStdout: true, useEmoji: true)
+let consoleErrors = ConsoleDestination(minimumLevel: .error, mirrorsToStdout: true, useEmoji: false)
 
 let multiLogger = ARCLogger(destinations: [consoleDebug, consoleErrors])
 
@@ -118,7 +114,9 @@ multiLogger.error("Error message - appears in both destinations")
 
 printSection("8. Shared Instance")
 
-print("Using the shared singleton:\n")
+// ARCLogger.shared uses the default ConsoleDestination (unified log only).
+// Output appears in: log stream --predicate 'subsystem CONTAINS "ARCLogger"'
+print("Using the shared singleton (output via unified log):\n")
 ARCLogger.shared.info("Message from shared instance")
 
 // MARK: - 9. Practical Example: User Authentication Flow
@@ -147,32 +145,25 @@ func printSection(_ title: String) {
 }
 
 func simulateAuthFlow() {
-    let authLogger = ARCLogger(
-        subsystem: "com.example.app",
-        category: "Auth",
-        isProduction: false
-    )
+    let authLogger = ARCLogger(destinations: [ConsoleDestination(mirrorsToStdout: true)],
+                               subsystem: "com.example.app",
+                               category: "Auth",
+                               isProduction: false)
 
     // Step 1: Login attempt
-    authLogger.info("Login attempt started", metadata: [
-        "username": .private("john_doe"),
-        "method": .public("password")
-    ])
+    authLogger.info("Login attempt started", metadata: ["username": .private("john_doe"),
+                                                        "method": .public("password")])
 
     // Step 2: Validation
     authLogger.debug("Validating credentials...")
 
     // Step 3: Token generation
-    authLogger.info("Authentication successful", metadata: [
-        "userId": .public("USR-12345"),
-        "token": .sensitive("eyJhbGciOiJIUzI1NiIs..."),
-        "expiresIn": .public("3600s")
-    ])
+    authLogger.info("Authentication successful", metadata: ["userId": .public("USR-12345"),
+                                                            "token": .sensitive("eyJhbGciOiJIUzI1NiIs..."),
+                                                            "expiresIn": .public("3600s")])
 
     // Step 4: Session created
-    authLogger.info("Session created", metadata: [
-        "sessionId": .public("sess_abc123"),
-        "ip": .private("192.168.1.100"),
-        "userAgent": .private("Mozilla/5.0...")
-    ])
+    authLogger.info("Session created", metadata: ["sessionId": .public("sess_abc123"),
+                                                  "ip": .private("192.168.1.100"),
+                                                  "userAgent": .private("Mozilla/5.0...")])
 }
