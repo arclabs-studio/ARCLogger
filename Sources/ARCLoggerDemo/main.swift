@@ -9,6 +9,8 @@ import Foundation
 
 // MARK: - Demo Runner
 
+// print() is used intentionally here for demo presentation (section headers/banners).
+// All actual log calls below use ARCLogger with mirrorsToStdout: true.
 print("""
 ╔══════════════════════════════════════════════════════════════════╗
 ║                      ARCLogger Demo                              ║

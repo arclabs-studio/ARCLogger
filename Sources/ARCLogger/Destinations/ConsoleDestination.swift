@@ -120,9 +120,11 @@ public struct ConsoleDestination: LogDestination {
             print(format(entry, isProduction: isProduction))
         }
     }
+}
 
-    // MARK: - Private
+// MARK: - Private
 
+extension ConsoleDestination {
     private func format(_ entry: LogEntry, isProduction: Bool) -> String {
         var components: [String] = []
 

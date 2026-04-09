@@ -97,7 +97,13 @@ public struct ARCLogger: Logger, Sendable {
 
     // MARK: - Logger
 
-    // swiftlint:disable:next function_parameter_count
+    // swiftlint:disable function_parameter_count
+    /// Logs a message by creating a ``LogEntry`` and writing it to all destinations.
+    ///
+    /// Threads `subsystem` and `category` from this logger into the entry so
+    /// destinations can construct an appropriately scoped `os.Logger` instance.
+    ///
+    /// - SeeAlso: ``Logger/log(_:level:metadata:file:function:line:)``
     public func log(_ message: String,
                     level: LogLevel,
                     metadata: [String: LogValue],
@@ -117,6 +123,7 @@ public struct ARCLogger: Logger, Sendable {
             destination.write(entry, isProduction: isProduction)
         }
     }
+    // swiftlint:enable function_parameter_count
 }
 
 // MARK: - Shared Instance
