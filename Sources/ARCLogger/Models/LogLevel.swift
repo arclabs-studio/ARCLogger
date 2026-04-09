@@ -5,6 +5,7 @@
 // Licensed under MIT License
 
 import Foundation
+import os
 
 /// Represents the severity level of a log message.
 ///
@@ -75,6 +76,22 @@ public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConve
         case .warning: "⚠️"
         case .error: "❌"
         case .critical: "🔥"
+        }
+    }
+
+    // MARK: - Internal
+
+    /// Maps ARCLogger levels to their `OSLogType` equivalents.
+    ///
+    /// `.warning` maps to `.default` because `OSLogType` has no `.notice`;
+    /// `.default` is the closest severity step between `.info` and `.error`.
+    var osLogType: OSLogType {
+        switch self {
+        case .debug: .debug
+        case .info: .info
+        case .warning: .default
+        case .error: .error
+        case .critical: .fault
         }
     }
 }
