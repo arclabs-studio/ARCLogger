@@ -20,11 +20,12 @@ ARCLogger is part of the ARC Labs infrastructure packages and serves as a founda
 ### Key Features
 
 - **Privacy-Conscious Logging** - Automatic redaction of sensitive data in production
+- **Unified Logging** - Routes through Apple's `os.Logger`; visible in Console.app, `log stream`, and Xcode
 - **Structured Metadata** - Add contextual data to logs for better debugging
 - **Multiple Destinations** - Console, file, or custom destinations
 - **Thread-Safe** - Safe to use from any thread or actor
 - **Swift 6 Ready** - Full Sendable conformance and strict concurrency
-- **Zero Dependencies** - Built entirely on Foundation
+- **Zero Dependencies** - Built entirely on Apple frameworks
 
 ---
 
@@ -153,6 +154,7 @@ let logger = ARCLogger(
     destinations: [
         ConsoleDestination(
             minimumLevel: .info,
+            // mirrorsToStdout: true  // uncomment for CLI tools / demo apps
             includeTimestamp: true,
             includeSourceLocation: true,
             useEmoji: true
@@ -162,6 +164,25 @@ let logger = ARCLogger(
     category: "Networking",
     isProduction: true
 )
+```
+
+### Viewing Logs via the Unified Log
+
+`ConsoleDestination` routes through Apple's unified logging system (`os.Logger`). Logs are visible in
+Console.app and via `log stream`:
+
+```bash
+# Stream logs from your app in real time
+log stream --level debug --predicate 'subsystem CONTAINS "com.myapp"'
+
+# Show historical logs
+log show --last 1h --predicate 'subsystem CONTAINS "com.myapp"' --info --debug
+```
+
+For CLI tools or demo executables that also need stdout output, opt in with `mirrorsToStdout: true`:
+
+```swift
+ConsoleDestination(mirrorsToStdout: true)
 ```
 
 ---
@@ -261,10 +282,16 @@ The demo covers:
 - Multiple destinations
 - Practical authentication flow example
 
-**Sample output:**
+**Sample output** (stdout mirror):
 
 ```
 [2025-12-18 10:30:00.123] ℹ️ [INFO] User authenticated {userId=USR-12345, email=<private>, token=<sensitive>}
+```
+
+The same entry is also emitted to the unified log, visible via:
+
+```bash
+log stream --level debug --predicate 'subsystem CONTAINS "arclogger"'
 ```
 
 ### Available Commands

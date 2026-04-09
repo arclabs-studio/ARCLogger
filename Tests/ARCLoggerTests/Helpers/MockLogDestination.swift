@@ -9,10 +9,18 @@ final class MockLogDestination: LogDestination, @unchecked Sendable {
     private(set) var loggedEntries: [LogEntry] = []
     private(set) var callCount = 0
 
-    // Computed helpers
-    var lastEntry: LogEntry? { loggedEntries.last }
-    var lastLevel: LogLevel? { loggedEntries.last?.level }
-    var lastMessage: String? { loggedEntries.last?.message }
+    /// Computed helpers
+    var lastEntry: LogEntry? {
+        loggedEntries.last
+    }
+
+    var lastLevel: LogLevel? {
+        loggedEntries.last?.level
+    }
+
+    var lastMessage: String? {
+        loggedEntries.last?.message
+    }
 
     init(minimumLevel: LogLevel = .debug) {
         self.minimumLevel = minimumLevel

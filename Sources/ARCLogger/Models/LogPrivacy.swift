@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
-
 /// Specifies the privacy level for logged values.
 ///
 /// Privacy levels control how sensitive data appears in logs:

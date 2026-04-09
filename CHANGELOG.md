@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **ConsoleDestination now routes through Apple's unified logging system (`os.Logger`)** instead of `print()`.
+  Previously all log output went to stdout only, making it invisible to Console.app, `log stream`,
+  and apps launched detached from Xcode. Logs now appear in every standard Apple logging channel.
+
+### Added
+
+- **`ConsoleDestination.mirrorsToStdout`** — opt-in flag (default `false`) that additionally prints
+  formatted output to stdout. Set to `true` for CLI tools or demo executables that need terminal output.
+- **`LogEntry.subsystem` and `LogEntry.category`** — new fields (defaulted to `""`) that thread
+  `ARCLogger`'s subsystem/category through to destinations. Custom `LogDestination` implementations
+  receive these automatically with no source changes required.
+- **Native OSLog privacy semantics** — `.public` values are always visible; `.private` values are
+  redacted to `<private>` by the OS in release builds; `.sensitive` values are always hash-masked.
+  Redaction is now enforced at the OS level, not in application code.
+
+### Viewing Logs via the Unified Log
+
+After this change, every ARCLogger call is observable via:
+
+```bash
+log stream --level debug --predicate 'subsystem CONTAINS "com.yourapp"'
+```
+
+or in Console.app by filtering on your app's subsystem/category.
+
 ## [1.0.0] - 2025-01-01
 
 ### Added

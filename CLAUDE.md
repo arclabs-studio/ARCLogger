@@ -116,7 +116,7 @@ Tests/ARCLoggerTests/
 2. **Protocol-first** - `Logger` and `LogDestination` protocols for extensibility
 3. **Sendable everywhere** - Full Swift 6 concurrency support
 4. **No singletons** - `shared` is just a convenience, not required
-5. **Zero dependencies** - Only Foundation, maximally portable
+5. **Minimal dependencies** - Only Apple frameworks (`Foundation`, `os`), maximally portable
 
 ## Testing
 
