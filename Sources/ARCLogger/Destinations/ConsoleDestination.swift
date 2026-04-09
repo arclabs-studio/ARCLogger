@@ -5,7 +5,9 @@
 // Licensed under MIT License
 
 import Foundation
+#if canImport(os)
 import os
+#endif
 
 /// A log destination that writes to Apple's unified logging system.
 ///
@@ -81,6 +83,7 @@ public struct ConsoleDestination: LogDestination {
     public func write(_ entry: LogEntry, isProduction: Bool) {
         guard entry.level >= minimumLevel else { return }
 
+        #if canImport(os)
         let subsystem = entry.subsystem.isEmpty ? "ARCLogger" : entry.subsystem
         let category = entry.category.isEmpty ? "Default" : entry.category
         let osLogger = os.Logger(subsystem: subsystem, category: category)
@@ -113,8 +116,16 @@ public struct ConsoleDestination: LogDestination {
         // OSLogMessage templates are compile-time constants so this bounded
         // form is the only way to emit dynamic metadata with native OSLog
         // privacy semantics. Empty buckets produce harmless trailing spaces.
+        // Multiline literal with \ continuation produces the same single-line
+        // OSLogMessage while keeping each source line under the 120-char limit.
         osLogger.log(level: entry.level.osLogType,
-                     "\(entry.message, privacy: .public) \(publicMeta, privacy: .public) \(privateMeta, privacy: .private) \(sensitiveMeta, privacy: .sensitive(mask: .hash))")
+                     """
+                     \(entry.message, privacy: .public) \
+                     \(publicMeta, privacy: .public) \
+                     \(privateMeta, privacy: .private) \
+                     \(sensitiveMeta, privacy: .sensitive(mask: .hash))
+                     """)
+        #endif
 
         if mirrorsToStdout {
             print(format(entry, isProduction: isProduction))

@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import os
-
 /// Represents the severity level of a log message.
 ///
 /// Log levels are ordered from least to most severe:
@@ -77,7 +75,12 @@ public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConve
         case .critical: "🔥"
         }
     }
+}
 
+#if canImport(os)
+import os
+
+extension LogLevel {
     // MARK: - Internal
 
     /// Maps ARCLogger levels to their `OSLogType` equivalents.
@@ -94,3 +97,4 @@ public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConve
         }
     }
 }
+#endif
