@@ -140,3 +140,37 @@ extension ARCLogger {
     /// ```
     public static let shared = ARCLogger()
 }
+
+// MARK: - Type-Scoped Convenience
+
+extension ARCLogger {
+    /// Creates a logger whose `category` is derived from a type.
+    ///
+    /// Convenience initializer for the common pattern of scoping a logger
+    /// to a single type. The category becomes `String(describing: type)`,
+    /// which makes filtering trivial in Console.app, `log stream`, or
+    /// `xclog` (`--category NetworkClient`).
+    ///
+    /// ```swift
+    /// final class NetworkClient {
+    ///     private let logger = ARCLogger(for: NetworkClient.self)
+    ///     // category == "NetworkClient"
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - type: The type whose name should be used as the log category.
+    ///   - destinations: The log destinations to use. Defaults to a single
+    ///     ``ConsoleDestination``.
+    ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
+    ///   - isProduction: Whether to treat as production. Defaults to `false`.
+    public init(for type: Any.Type,
+                destinations: [any LogDestination] = [ConsoleDestination()],
+                subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                isProduction: Bool = false) {
+        self.init(destinations: destinations,
+                  subsystem: subsystem,
+                  category: String(describing: type),
+                  isProduction: isProduction)
+    }
+}

@@ -65,6 +65,33 @@ struct ARCLoggerTests {
         #expect(logger.destinations.count == 2)
     }
 
+    @Test("init(for:) derives category from type name") func initForTypeDerivesCategory() {
+        struct NetworkClient {}
+        let logger = ARCLogger(for: NetworkClient.self, destinations: [MockDestination()])
+
+        #expect(logger.category == "NetworkClient")
+    }
+
+    @Test("init(for:) preserves custom subsystem and production flag") func initForTypePreservesParams() {
+        struct AnalyticsService {}
+        let logger = ARCLogger(for: AnalyticsService.self,
+                               destinations: [MockDestination()],
+                               subsystem: "com.test.app",
+                               isProduction: true)
+
+        #expect(logger.category == "AnalyticsService")
+        #expect(logger.subsystem == "com.test.app")
+        #expect(logger.isProduction == true)
+    }
+
+    @Test("init(for:) uses default ConsoleDestination when no destinations passed") func initForTypeDefaultDestination() {
+        struct AuthRepository {}
+        let logger = ARCLogger(for: AuthRepository.self)
+
+        #expect(logger.destinations.count == 1)
+        #expect(logger.category == "AuthRepository")
+    }
+
     // MARK: - Logging Tests
 
     @Test("Log message is written to destination") func logWritesToDestination() {
