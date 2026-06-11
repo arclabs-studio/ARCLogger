@@ -185,6 +185,63 @@ For CLI tools or demo executables that also need stdout output, opt in with `mir
 ConsoleDestination(mirrorsToStdout: true)
 ```
 
+Every unified-log entry is prefixed with `[File.swift:42]` (public source
+location) so Console.app, `log stream`, and `xclog` show the call site without
+needing the stdout mirror. `includeSourceLocation` only controls whether the
+stdout mirror *also* prints it.
+
+### Using ARCLogger with `xclog`
+
+[`xclog`](https://github.com/arclabs-studio/axiom) — Axiom's simulator console
+capture CLI — reads Apple's unified log and returns structured JSON. Because
+`ConsoleDestination` already routes through `os.Logger`, every ARCLogger call
+is captured by `xclog` with no extra setup.
+
+```bash
+# Discover the running app's bundle id
+xclog list
+
+# Capture 30s of logs filtered by subsystem + category
+xclog launch com.yourapp.MyApp \
+  --subsystem com.yourapp.MyApp \
+  --category Networking \
+  --timeout 30s \
+  --max-lines 200
+```
+
+To filter cleanly, give ARCLogger a real subsystem and category — do **not**
+rely on the `Bundle.main.bundleIdentifier` default when constructing loggers
+from inside Swift packages (it falls back to `"ARCLogger"` in SPM/CLI
+contexts):
+
+```swift
+let logger = ARCLogger(
+    subsystem: "com.yourapp.MyApp.Networking",
+    category: "HTTP"
+)
+```
+
+#### Level mapping (important for `xclog --level` filtering)
+
+`OSLogType` has no native `warning`, so ARCLogger maps levels as follows:
+
+| ARCLogger level | `OSLogType` | `xclog`/Console.app level |
+|-----------------|-------------|---------------------------|
+| `.debug`        | `.debug`    | `debug`                   |
+| `.info`         | `.info`     | `info`                    |
+| `.warning`      | `.default`  | `default` (not `warning`) |
+| `.error`        | `.error`    | `error`                   |
+| `.critical`     | `.fault`    | `fault`                   |
+
+When filtering warnings with `xclog`, use `--level default` (or higher).
+
+#### `isProduction` vs OS redaction
+
+The OS handles `.private` / `.sensitive` redaction in release builds
+automatically — the `isProduction` flag on `ARCLogger` only affects how the
+optional stdout mirror formats redacted values. Unified-log output is governed
+by the build configuration, not by this flag.
+
 ---
 
 ## Project Structure
