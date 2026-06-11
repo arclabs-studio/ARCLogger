@@ -115,24 +115,67 @@ logger.info("User authenticated", metadata: [
 | `.private` | Visible | Redacted | PII (emails, names) |
 | `.sensitive` | Redacted | Redacted | Secrets (tokens, passwords) |
 
-### Custom Destinations
+### Type-Scoped Loggers
 
-Create custom log destinations for files, analytics, or remote services:
+For the common pattern of scoping a logger to a single type, use the
+`init(for:)` convenience initializer. The category becomes
+`String(describing: type)`, which makes filtering trivial in Console.app,
+`log stream`, or `xclog`:
 
 ```swift
-struct FileDestination: LogDestination {
-    let fileURL: URL
-    var minimumLevel: LogLevel = .info
+final class NetworkClient {
+    private let logger = ARCLogger(for: NetworkClient.self)
+    // subsystem = bundle identifier, category = "NetworkClient"
+}
+```
+
+```bash
+# Stream only NetworkClient logs
+log stream --predicate 'category == "NetworkClient"'
+```
+
+### Built-in Destinations
+
+| Destination              | Output           | Use case                                       |
+|--------------------------|------------------|------------------------------------------------|
+| ``ConsoleDestination``   | `os.Logger`      | Console.app, `log stream`, `xclog`, Xcode      |
+| ``JSONLinesDestination`` | NDJSON           | Log pipelines, CI scrapers, custom MCP servers |
+
+`JSONLinesDestination` writes one privacy-aware JSON object per line:
+
+```swift
+// Stream to a file:
+let handle = try FileHandle(forWritingTo: logURL)
+let json = JSONLinesDestination(handle: handle)
+
+// Or to any sink closure:
+let json = JSONLinesDestination { data in
+    remoteLogShipper.send(data)
+}
+
+let logger = ARCLogger(destinations: [ConsoleDestination(), json])
+```
+
+Each record contains `message`, `level`, `metadata`, `timestamp`,
+`subsystem`, `category`, `file`, `function`, and `line`. `.private`
+values are redacted to `<private>` in production; `.sensitive` values
+are always `<sensitive>` — privacy is applied **before** encoding.
+
+### Custom Destinations
+
+Create custom log destinations for analytics, remote services, or other sinks:
+
+```swift
+struct AnalyticsDestination: LogDestination {
+    var minimumLevel: LogLevel = .warning
 
     func write(_ entry: LogEntry, isProduction: Bool) {
-        let message = "[\(entry.level)] \(entry.message)"
-        // Write to file...
+        Analytics.track(level: entry.level, message: entry.message)
     }
 }
 
-// Use custom destination
 let logger = ARCLogger(
-    destinations: [ConsoleDestination(), FileDestination(fileURL: logFile)],
+    destinations: [ConsoleDestination(), AnalyticsDestination()],
     isProduction: true
 )
 ```
@@ -260,7 +303,8 @@ ARCLogger/
 │   │   │   ├── Logger.swift           # Logger protocol
 │   │   │   └── LogDestination.swift   # Destination protocol
 │   │   └── Destinations/
-│   │       └── ConsoleDestination.swift
+│   │       ├── ConsoleDestination.swift
+│   │       └── JSONLinesDestination.swift
 │   └── ARCLoggerDemo/
 │       └── main.swift                 # Interactive demo
 ├── Tests/
