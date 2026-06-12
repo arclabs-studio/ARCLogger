@@ -235,10 +235,10 @@ stdout mirror *also* prints it.
 
 ### Using ARCLogger with `xclog`
 
-[`xclog`](https://github.com/arclabs-studio/axiom) — Axiom's simulator console
-capture CLI — reads Apple's unified log and returns structured JSON. Because
-`ConsoleDestination` already routes through `os.Logger`, every ARCLogger call
-is captured by `xclog` with no extra setup.
+`xclog` — Axiom's simulator console capture CLI — reads Apple's unified log
+and returns structured JSON. Because `ConsoleDestination` already routes
+through `os.Logger`, every ARCLogger call is captured by `xclog` with no
+extra setup.
 
 ```bash
 # Discover the running app's bundle id
