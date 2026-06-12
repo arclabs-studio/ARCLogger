@@ -109,17 +109,24 @@ public struct ConsoleDestination: LogDestination {
         let publicMeta = publicParts.sorted().joined(separator: ", ")
         let privateMeta = privateParts.sorted().joined(separator: ", ")
         let sensitiveMeta = sensitiveParts.sorted().joined(separator: ", ")
+        let sourceLocation = "[\(entry.fileName):\(entry.line)]"
 
         // The main message is developer-provided and must be explicitly marked
         // .public; otherwise the OS redacts all strings by default in production.
-        // Three fixed interpolation segments cover all three privacy tiers.
-        // OSLogMessage templates are compile-time constants so this bounded
-        // form is the only way to emit dynamic metadata with native OSLog
-        // privacy semantics. Empty buckets produce harmless trailing spaces.
-        // Multiline literal with \ continuation produces the same single-line
-        // OSLogMessage while keeping each source line under the 120-char limit.
+        // Four fixed interpolation segments: source location, message, public/
+        // private/sensitive metadata buckets. Source paths and line numbers are
+        // non-sensitive build artifacts, so they ride in the .public stream
+        // alongside the message — this is what makes `xclog` / Console.app /
+        // `log stream` show "[File.swift:42]" for every entry without a stdout
+        // mirror. OSLogMessage templates are compile-time constants so this
+        // bounded form is the only way to emit dynamic metadata with native
+        // OSLog privacy semantics. Empty buckets produce harmless trailing
+        // spaces. Multiline literal with \ continuation produces the same
+        // single-line OSLogMessage while keeping each source line under the
+        // 120-char limit.
         osLogger.log(level: entry.level.osLogType,
                      """
+                     \(sourceLocation, privacy: .public) \
                      \(entry.message, privacy: .public) \
                      \(publicMeta, privacy: .public) \
                      \(privateMeta, privacy: .private) \

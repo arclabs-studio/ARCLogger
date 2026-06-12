@@ -21,7 +21,7 @@
 ///     // Handle elevated severity
 /// }
 /// ```
-public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConvertible {
+public enum LogLevel: Int, Sendable, Comparable, CaseIterable, Codable, CustomStringConvertible {
     /// Detailed debugging information.
     ///
     /// Use for verbose output during development and troubleshooting.
