@@ -28,7 +28,7 @@ categories:
       - 'security'
 
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
-change-title-escapes: '\<*_&'
+change-title-escapes: '\<*_&' # Escape special characters in titles
 
 version-resolver:
   major:
@@ -56,12 +56,18 @@ template: |
 
   ## Installation
 
-  Add ARCLogger to your Swift package dependencies:
+  Add ARCDevTools to your Swift package dependencies:
 
   ```swift
   dependencies: [
-      .package(url: "https://github.com/arclabs-studio/ARCLogger.git", from: "$RESOLVED_VERSION")
+      .package(url: "https://github.com/arclabs-studio/ARCDevTools.git", from: "$RESOLVED_VERSION")
   ]
+  ```
+
+  Or use the one-command setup:
+
+  ```bash
+  swift run arcdevtools-setup
   ```
 
   ## Contributors
