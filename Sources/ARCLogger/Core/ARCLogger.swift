@@ -69,11 +69,9 @@ public struct ARCLogger: Logger, Sendable {
     ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
     ///   - category: The log category. Defaults to "Default".
     ///   - isProduction: Whether to treat as production. Defaults to `false`.
-    public init(
-        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
-        category: String = "Default",
-        isProduction: Bool = false
-    ) {
+    public init(subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                category: String = "Default",
+                isProduction: Bool = false) {
         self.subsystem = subsystem
         self.category = category
         self.isProduction = isProduction
@@ -87,12 +85,10 @@ public struct ARCLogger: Logger, Sendable {
     ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
     ///   - category: The log category. Defaults to "Default".
     ///   - isProduction: Whether to treat as production. Defaults to `false`.
-    public init(
-        destinations: [any LogDestination],
-        subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
-        category: String = "Default",
-        isProduction: Bool = false
-    ) {
+    public init(destinations: [any LogDestination],
+                subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                category: String = "Default",
+                isProduction: Bool = false) {
         self.destinations = destinations
         self.subsystem = subsystem
         self.category = category
@@ -101,27 +97,33 @@ public struct ARCLogger: Logger, Sendable {
 
     // MARK: - Logger
 
-    public func log(
-        _ message: String,
-        level: LogLevel,
-        metadata: [String: LogValue],
-        file: String,
-        function: String,
-        line: Int
-    ) {
-        let entry = LogEntry(
-            message: message,
-            level: level,
-            metadata: metadata,
-            file: file,
-            function: function,
-            line: line
-        )
+    // swiftlint:disable function_parameter_count
+    /// Logs a message by creating a ``LogEntry`` and writing it to all destinations.
+    ///
+    /// Threads `subsystem` and `category` from this logger into the entry so
+    /// destinations can construct an appropriately scoped `os.Logger` instance.
+    ///
+    /// - SeeAlso: ``Logger/log(_:level:metadata:file:function:line:)``
+    public func log(_ message: String,
+                    level: LogLevel,
+                    metadata: [String: LogValue],
+                    file: String,
+                    function: String,
+                    line: Int) {
+        let entry = LogEntry(message: message,
+                             level: level,
+                             metadata: metadata,
+                             subsystem: subsystem,
+                             category: category,
+                             file: file,
+                             function: function,
+                             line: line)
 
         for destination in destinations {
             destination.write(entry, isProduction: isProduction)
         }
     }
+    // swiftlint:enable function_parameter_count
 }
 
 // MARK: - Shared Instance
@@ -137,4 +139,38 @@ extension ARCLogger {
     /// ARCLogger.shared.info("Application started")
     /// ```
     public static let shared = ARCLogger()
+}
+
+// MARK: - Type-Scoped Convenience
+
+extension ARCLogger {
+    /// Creates a logger whose `category` is derived from a type.
+    ///
+    /// Convenience initializer for the common pattern of scoping a logger
+    /// to a single type. The category becomes `String(describing: type)`,
+    /// which makes filtering trivial in Console.app, `log stream`, or
+    /// `xclog` (`--category NetworkClient`).
+    ///
+    /// ```swift
+    /// final class NetworkClient {
+    ///     private let logger = ARCLogger(for: NetworkClient.self)
+    ///     // category == "NetworkClient"
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - type: The type whose name should be used as the log category.
+    ///   - destinations: The log destinations to use. Defaults to a single
+    ///     ``ConsoleDestination``.
+    ///   - subsystem: The subsystem identifier. Defaults to bundle identifier.
+    ///   - isProduction: Whether to treat as production. Defaults to `false`.
+    public init(for type: Any.Type,
+                destinations: [any LogDestination] = [ConsoleDestination()],
+                subsystem: String = Bundle.main.bundleIdentifier ?? "ARCLogger",
+                isProduction: Bool = false) {
+        self.init(destinations: destinations,
+                  subsystem: subsystem,
+                  category: String(describing: type),
+                  isProduction: isProduction)
+    }
 }

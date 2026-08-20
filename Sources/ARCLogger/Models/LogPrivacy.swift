@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
-
 /// Specifies the privacy level for logged values.
 ///
 /// Privacy levels control how sensitive data appears in logs:
@@ -22,7 +20,7 @@ import Foundation
 ///     "password": .sensitive("***")
 /// ])
 /// ```
-public enum LogPrivacy: Sendable, Equatable {
+public enum LogPrivacy: String, Sendable, Equatable, Codable {
     /// The value is always visible in logs.
     ///
     /// Use for non-sensitive information that can be safely logged.
@@ -51,7 +49,7 @@ public enum LogPrivacy: Sendable, Equatable {
 /// let privateValue = LogValue.private("hidden in production")
 /// let sensitiveValue = LogValue.sensitive("always hidden")
 /// ```
-public struct LogValue: Sendable, CustomStringConvertible {
+public struct LogValue: Sendable, Codable, CustomStringConvertible {
     /// The underlying string value.
     public let value: String
 

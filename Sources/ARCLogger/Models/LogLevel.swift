@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
-
 /// Represents the severity level of a log message.
 ///
 /// Log levels are ordered from least to most severe:
@@ -23,7 +21,7 @@ import Foundation
 ///     // Handle elevated severity
 /// }
 /// ```
-public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConvertible {
+public enum LogLevel: Int, Sendable, Comparable, CaseIterable, Codable, CustomStringConvertible {
     /// Detailed debugging information.
     ///
     /// Use for verbose output during development and troubleshooting.
@@ -78,3 +76,25 @@ public enum LogLevel: Int, Sendable, Comparable, CaseIterable, CustomStringConve
         }
     }
 }
+
+#if canImport(os)
+import os
+
+extension LogLevel {
+    // MARK: - Internal
+
+    /// Maps ARCLogger levels to their `OSLogType` equivalents.
+    ///
+    /// `.warning` maps to `.default` because `OSLogType` has no `.notice`;
+    /// `.default` is the closest severity step between `.info` and `.error`.
+    var osLogType: OSLogType {
+        switch self {
+        case .debug: .debug
+        case .info: .info
+        case .warning: .default
+        case .error: .error
+        case .critical: .fault
+        }
+    }
+}
+#endif

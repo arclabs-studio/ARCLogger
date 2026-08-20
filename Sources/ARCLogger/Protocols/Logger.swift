@@ -4,8 +4,6 @@
 // Copyright (c) 2025 ARC Labs Studio
 // Licensed under MIT License
 
-import Foundation
-
 /// A protocol defining the interface for logging operations.
 ///
 /// Implement this protocol to create custom loggers with different
@@ -28,6 +26,7 @@ import Foundation
 /// }
 /// ```
 public protocol Logger: Sendable {
+    // swiftlint:disable function_parameter_count
     /// Logs a message with the specified level and metadata.
     ///
     /// - Parameters:
@@ -37,14 +36,13 @@ public protocol Logger: Sendable {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    func log(
-        _ message: String,
-        level: LogLevel,
-        metadata: [String: LogValue],
-        file: String,
-        function: String,
-        line: Int
-    )
+    func log(_ message: String,
+             level: LogLevel,
+             metadata: [String: LogValue],
+             file: String,
+             function: String,
+             line: Int)
+    // swiftlint:enable function_parameter_count
 }
 
 // MARK: - Convenience Methods
@@ -58,13 +56,11 @@ extension Logger {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    public func debug(
-        _ message: String,
-        metadata: [String: LogValue] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public func debug(_ message: String,
+                      metadata: [String: LogValue] = [:],
+                      file: String = #file,
+                      function: String = #function,
+                      line: Int = #line) {
         log(message, level: .debug, metadata: metadata, file: file, function: function, line: line)
     }
 
@@ -76,13 +72,11 @@ extension Logger {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    public func info(
-        _ message: String,
-        metadata: [String: LogValue] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public func info(_ message: String,
+                     metadata: [String: LogValue] = [:],
+                     file: String = #file,
+                     function: String = #function,
+                     line: Int = #line) {
         log(message, level: .info, metadata: metadata, file: file, function: function, line: line)
     }
 
@@ -94,13 +88,11 @@ extension Logger {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    public func warning(
-        _ message: String,
-        metadata: [String: LogValue] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public func warning(_ message: String,
+                        metadata: [String: LogValue] = [:],
+                        file: String = #file,
+                        function: String = #function,
+                        line: Int = #line) {
         log(message, level: .warning, metadata: metadata, file: file, function: function, line: line)
     }
 
@@ -112,13 +104,11 @@ extension Logger {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    public func error(
-        _ message: String,
-        metadata: [String: LogValue] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public func error(_ message: String,
+                      metadata: [String: LogValue] = [:],
+                      file: String = #file,
+                      function: String = #function,
+                      line: Int = #line) {
         log(message, level: .error, metadata: metadata, file: file, function: function, line: line)
     }
 
@@ -130,13 +120,11 @@ extension Logger {
     ///   - file: The source file (auto-populated).
     ///   - function: The function name (auto-populated).
     ///   - line: The line number (auto-populated).
-    public func critical(
-        _ message: String,
-        metadata: [String: LogValue] = [:],
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public func critical(_ message: String,
+                         metadata: [String: LogValue] = [:],
+                         file: String = #file,
+                         function: String = #function,
+                         line: Int = #line) {
         log(message, level: .critical, metadata: metadata, file: file, function: function, line: line)
     }
 }

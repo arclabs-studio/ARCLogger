@@ -36,6 +36,12 @@ public struct LogEntry: Sendable {
     /// The timestamp when this entry was created.
     public let timestamp: Date
 
+    /// The subsystem identifier from the logger that created this entry.
+    public let subsystem: String
+
+    /// The category from the logger that created this entry.
+    public let category: String
+
     /// The source file where the log was called.
     public let file: String
 
@@ -51,22 +57,26 @@ public struct LogEntry: Sendable {
     ///   - message: The log message.
     ///   - level: The severity level.
     ///   - metadata: Custom metadata dictionary. Defaults to empty.
+    ///   - subsystem: The subsystem identifier. Defaults to empty string.
+    ///   - category: The log category. Defaults to empty string.
     ///   - timestamp: The timestamp. Defaults to current date.
     ///   - file: The source file. Defaults to the caller's file.
     ///   - function: The function name. Defaults to the caller's function.
     ///   - line: The line number. Defaults to the caller's line.
-    public init(
-        message: String,
-        level: LogLevel,
-        metadata: [String: LogValue] = [:],
-        timestamp: Date = Date(),
-        file: String = #file,
-        function: String = #function,
-        line: Int = #line
-    ) {
+    public init(message: String,
+                level: LogLevel,
+                metadata: [String: LogValue] = [:],
+                subsystem: String = "",
+                category: String = "",
+                timestamp: Date = Date(),
+                file: String = #file,
+                function: String = #function,
+                line: Int = #line) {
         self.message = message
         self.level = level
         self.metadata = metadata
+        self.subsystem = subsystem
+        self.category = category
         self.timestamp = timestamp
         self.file = file
         self.function = function

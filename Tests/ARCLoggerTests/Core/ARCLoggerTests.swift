@@ -33,12 +33,10 @@ final class MockDestination: LogDestination, @unchecked Sendable {
 
 // MARK: - ARCLogger Tests
 
-@Suite("ARCLogger Tests")
 struct ARCLoggerTests {
     // MARK: - Initialization Tests
 
-    @Test("Default initialization creates logger with console destination")
-    func defaultInitialization() {
+    @Test("Default initialization creates logger with console destination") func defaultInitialization() {
         let logger = ARCLogger()
 
         #expect(logger.destinations.count == 1)
@@ -46,15 +44,12 @@ struct ARCLoggerTests {
         #expect(logger.category == "Default")
     }
 
-    @Test("Custom initialization preserves values")
-    func customInitialization() {
+    @Test("Custom initialization preserves values") func customInitialization() {
         let destination = MockDestination()
-        let logger = ARCLogger(
-            destinations: [destination],
-            subsystem: "com.test.app",
-            category: "Network",
-            isProduction: true
-        )
+        let logger = ARCLogger(destinations: [destination],
+                               subsystem: "com.test.app",
+                               category: "Network",
+                               isProduction: true)
 
         #expect(logger.destinations.count == 1)
         #expect(logger.subsystem == "com.test.app")
@@ -62,8 +57,7 @@ struct ARCLoggerTests {
         #expect(logger.isProduction == true)
     }
 
-    @Test("Logger can have multiple destinations")
-    func multipleDestinations() {
+    @Test("Logger can have multiple destinations") func multipleDestinations() {
         let destination1 = MockDestination()
         let destination2 = MockDestination()
         let logger = ARCLogger(destinations: [destination1, destination2])
@@ -71,10 +65,36 @@ struct ARCLoggerTests {
         #expect(logger.destinations.count == 2)
     }
 
+    @Test("init(for:) derives category from type name") func initForTypeDerivesCategory() {
+        struct NetworkClient {}
+        let logger = ARCLogger(for: NetworkClient.self, destinations: [MockDestination()])
+
+        #expect(logger.category == "NetworkClient")
+    }
+
+    @Test("init(for:) preserves custom subsystem and production flag") func initForTypePreservesParams() {
+        struct AnalyticsService {}
+        let logger = ARCLogger(for: AnalyticsService.self,
+                               destinations: [MockDestination()],
+                               subsystem: "com.test.app",
+                               isProduction: true)
+
+        #expect(logger.category == "AnalyticsService")
+        #expect(logger.subsystem == "com.test.app")
+        #expect(logger.isProduction == true)
+    }
+
+    @Test("init(for:) uses default ConsoleDestination when no destinations passed") func initForTypeDefaultDestination() {
+        struct AuthRepository {}
+        let logger = ARCLogger(for: AuthRepository.self)
+
+        #expect(logger.destinations.count == 1)
+        #expect(logger.category == "AuthRepository")
+    }
+
     // MARK: - Logging Tests
 
-    @Test("Log message is written to destination")
-    func logWritesToDestination() {
+    @Test("Log message is written to destination") func logWritesToDestination() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -85,8 +105,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.level == .info)
     }
 
-    @Test("Log message is written to all destinations")
-    func logWritesToAllDestinations() {
+    @Test("Log message is written to all destinations") func logWritesToAllDestinations() {
         let destination1 = MockDestination()
         let destination2 = MockDestination()
         let logger = ARCLogger(destinations: [destination1, destination2])
@@ -97,8 +116,7 @@ struct ARCLoggerTests {
         #expect(destination2.entries.count == 1)
     }
 
-    @Test("Metadata is passed to destination")
-    func metadataPassedToDestination() {
+    @Test("Metadata is passed to destination") func metadataPassedToDestination() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -108,8 +126,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.metadata["key"]?.value == "value")
     }
 
-    @Test("Production flag is passed to destination")
-    func productionFlagPassed() {
+    @Test("Production flag is passed to destination") func productionFlagPassed() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination], isProduction: true)
 
@@ -120,8 +137,7 @@ struct ARCLoggerTests {
 
     // MARK: - Log Level Convenience Methods
 
-    @Test("Debug convenience method logs at debug level")
-    func debugConvenienceMethod() {
+    @Test("Debug convenience method logs at debug level") func debugConvenienceMethod() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -130,8 +146,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.level == .debug)
     }
 
-    @Test("Info convenience method logs at info level")
-    func infoConvenienceMethod() {
+    @Test("Info convenience method logs at info level") func infoConvenienceMethod() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -140,8 +155,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.level == .info)
     }
 
-    @Test("Warning convenience method logs at warning level")
-    func warningConvenienceMethod() {
+    @Test("Warning convenience method logs at warning level") func warningConvenienceMethod() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -150,8 +164,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.level == .warning)
     }
 
-    @Test("Error convenience method logs at error level")
-    func errorConvenienceMethod() {
+    @Test("Error convenience method logs at error level") func errorConvenienceMethod() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -160,8 +173,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.level == .error)
     }
 
-    @Test("Critical convenience method logs at critical level")
-    func criticalConvenienceMethod() {
+    @Test("Critical convenience method logs at critical level") func criticalConvenienceMethod() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -172,14 +184,12 @@ struct ARCLoggerTests {
 
     // MARK: - Shared Instance Tests
 
-    @Test("Shared instance exists")
-    func sharedInstanceExists() {
+    @Test("Shared instance exists") func sharedInstanceExists() {
         let shared = ARCLogger.shared
         #expect(shared.destinations.count == 1)
     }
 
-    @Test("Shared instance is consistent")
-    func sharedInstanceIsConsistent() {
+    @Test("Shared instance is consistent") func sharedInstanceIsConsistent() {
         let shared1 = ARCLogger.shared
         let shared2 = ARCLogger.shared
         #expect(shared1.category == shared2.category)
@@ -187,8 +197,7 @@ struct ARCLoggerTests {
 
     // MARK: - Source Location Tests
 
-    @Test("Source location is captured in log entry")
-    func sourceLocationCaptured() {
+    @Test("Source location is captured in log entry") func sourceLocationCaptured() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -202,8 +211,7 @@ struct ARCLoggerTests {
 
     // MARK: - Edge Cases
 
-    @Test("Empty message is logged")
-    func emptyMessageLogged() {
+    @Test("Empty message is logged") func emptyMessageLogged() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -212,8 +220,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.message.isEmpty == true)
     }
 
-    @Test("Unicode message is logged correctly")
-    func unicodeMessageLogged() {
+    @Test("Unicode message is logged correctly") func unicodeMessageLogged() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -222,8 +229,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.message == "Hello World")
     }
 
-    @Test("Long message is logged")
-    func longMessageLogged() {
+    @Test("Long message is logged") func longMessageLogged() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
         let longMessage = String(repeating: "a", count: 10000)
@@ -233,8 +239,7 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.message.count == 10000)
     }
 
-    @Test("Empty metadata is handled")
-    func emptyMetadataHandled() {
+    @Test("Empty metadata is handled") func emptyMetadataHandled() {
         let destination = MockDestination()
         let logger = ARCLogger(destinations: [destination])
 
@@ -243,17 +248,30 @@ struct ARCLoggerTests {
         #expect(destination.entries.first?.metadata.isEmpty == true)
     }
 
-    @Test("Logger works with empty destinations array")
-    func emptyDestinationsArray() {
+    @Test("Logger works with empty destinations array") func emptyDestinationsArray() {
         let logger = ARCLogger(destinations: [])
         // Should not crash
         logger.info("Test")
     }
 
+    // MARK: - Subsystem and Category Plumbing
+
+    @Test("Logger threads subsystem and category into LogEntry") func subsystemAndCategoryPlumbing() {
+        let destination = MockDestination()
+        let logger = ARCLogger(destinations: [destination],
+                               subsystem: "com.test.subsystem",
+                               category: "TestCategory")
+
+        logger.info("Test message")
+
+        #expect(destination.entries.count == 1)
+        #expect(destination.entries[0].subsystem == "com.test.subsystem")
+        #expect(destination.entries[0].category == "TestCategory")
+    }
+
     // MARK: - Minimum Level Filtering
 
-    @Test("Destination filters logs below minimum level")
-    func destinationFiltersLogs() {
+    @Test("Destination filters logs below minimum level") func destinationFiltersLogs() {
         let destination = MockDestination()
         destination.minimumLevel = .warning
         let logger = ARCLogger(destinations: [destination])
